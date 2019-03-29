@@ -4,22 +4,25 @@ import (
     "github.com/labstack/echo"
 
     "github.com/submarine/handler"
+    "github.com/submarine/mymiddleware"
     "github.com/submarine/db"
-
-    "fmt"
 )
 
 func main () {
-    fmt.Println("Hello, Server")
-
     e := echo.New()
 
     //groups
+    UpdateGroup := e.Group("/update")
 
     //middlewares and groups
+    e.Use(mymiddleware.ServerHeader)
+    UpdateGroup.Use(mymiddleware.checkCookie)
 
     //routing
     e.GET("/", handler.MainPage())
+
+
+
     e.GET("/initiate", db.CreateTable)
     e.POST("/create", db.CreateSQL)
     e.GET("/read", db.ReadSQL)

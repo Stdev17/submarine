@@ -29,7 +29,7 @@ func ReadSQL (c echo.Context) error {
 	defer c.Request().Body.Close()
 
     //use DB
-    out, errOut := db.Prepare("select * from reviews orders desc limit 5 offset ?;")
+    out, errOut := db.Prepare("select * from reviews order by id desc limit 5 offset ?;")
     if errOut != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }
