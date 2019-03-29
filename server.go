@@ -22,6 +22,7 @@ func main () {
     e.GET("/", handler.MainPage())
     e.GET("/initiate", db.CreateTable)
     e.POST("/create", db.CreateSQL)
+    e.GET("/read", db.ReadSQL)
 
     e.Start(":8000")
 }
