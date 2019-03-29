@@ -2,27 +2,26 @@ package main
 
 import (
     "github.com/labstack/echo"
-    "github.com/labstack/echo/engine/standard"
-    "github.com/labstack/echo/middleware"
 
-    "./handler"
-    "./db"
+    "github.com/submarine/handler"
+    "github.com/submarine/db"
+
+    "fmt"
 )
 
 func main () {
+    fmt.Println("Hello, Server")
 
     e := echo.New()
 
     //groups
 
     //middlewares and groups
-    e.Use(middleware.Logger())
-    e.Use(middleware.Recover())
 
     //routing
-    e.Get("/main", hello.MainPage())
-    e.Get("/main", sql.CreateTable())
-    e.Post("/create", sql.CreateSQL())
+    e.GET("/", handler.MainPage())
+    e.GET("/initiate", db.CreateTable)
+    e.POST("/create", db.CreateSQL)
 
-    e.Run(standard.New(":8000"))
+    e.Start(":8000")
 }

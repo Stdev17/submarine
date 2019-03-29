@@ -7,63 +7,61 @@ import (
     "time"
     "log"
     "net/http"
+    "fmt"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
 type Review struct {
-    ReviewID int `json:"id"`
     ReviewerID string `json:"reviewer"`
-    Time time.Time `json:"time"`
     Contents string `json:"contents"`
 }
 
-func CreateTable () error {
-    db, err := sql.Open("mysql", "user:password@/maindb")
+func CreateTable (c echo.Context) error {
+    fmt.Println("Fuck")
+    db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "something went wrong")
     }
-
+    fmt.Println("Shit")
     err = db.Ping()
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "db went wrong")
     }
-    defer db.Close()
-
-    //use DB
-    _, err = db.Exec("create database reviewdb")
+    fmt.Println("You")
+    fmt.Println("Fuck")
+    _, err = db.Exec("use testdb")
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "choosing went wrong")
     }
-
-    _, err = db.Exec("choose reviewdb")
+    fmt.Println("You")
+    reviews, err := db.Prepare("create table reviews(id int NOT NULL AUTO_INCREMENT, reviewer varchar(30), time datetime, contents varchar(1000), PRIMARY KEY (id));")
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "query went wrong")
     }
-
-    reviews, err := db.Prepare("create table reviews(id int NOT NULL AUTO_INCREMENT, reviewer varchar(30), time unix_timestamp, contents varchar(1000), PRIMARY KEY (id));")
-    if err != nil {
-        return err
-    }
-
+    fmt.Println("Fuck")
     _, err = reviews.Exec()
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "exec went wrong")
     }
+    fmt.Println("You")
 
-    return nil
+    defer db.Close()
+    return c.String(http.StatusOK, "Table created")
+
+
 }
 
 func CreateSQL (c echo.Context) error {
-    db, err := sql.Open("mysql", "user:password@/maindb")
+    db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "something went wrong")
     }
 
     err = db.Ping()
     if err != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "ping went wrong")
     }
     defer db.Close()
 
@@ -81,26 +79,34 @@ func CreateSQL (c echo.Context) error {
     //use DB
     in, errinsert := db.Prepare("INSERT INTO reviews VALUES(?, ?, ?, ?)")
     if errinsert != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "query went wrong")
     }
     defer in.Close()
 
-    auto, errauto := db.Query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'reviewdb' and TABLE_NAME = 'reviews'")
+    auto, errauto := db.Query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'testdb' and TABLE_NAME = 'reviews';")
     if errauto != nil {
-        return err
+        return c.String(http.StatusInternalServerError, "taking auto went wrong")
     }
     defer auto.Close()
 
     var id int
 
+    auto.Next()
     errid := auto.Scan(&id)
     if errid != nil {
-        return errid
+        fmt.Println(errid)
+        return c.String(http.StatusInternalServerError, "auto scanning went wrong")
     }
 
-    _, errinto := in.Exec(id, rev.ReviewerID, time.Now().Unix(), rev.Contents)
+    t := time.Now()
+    t.Format("2006-01-02 15:04:05")
+
+    if err != nil {
+        return c.String(http.StatusInternalServerError, "parse went wrong")
+    }
+    _, errinto := in.Exec(id, rev.ReviewerID, t, rev.Contents)
     if errinto != nil {
-        return errinto
+        return c.String(http.StatusInternalServerError, "insert went wrong")
     }
 
     return c.String(http.StatusOK, "Successfully added the review")
