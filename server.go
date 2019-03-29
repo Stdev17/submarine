@@ -20,8 +20,7 @@ func main () {
 
     //routing
     e.GET("/", handler.MainPage())
-
-
+    e.GET("/login", handler.Login)
 
     e.GET("/initiate", db.CreateTable)
     e.POST("/create", db.CreateSQL)
