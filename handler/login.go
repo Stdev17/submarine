@@ -6,28 +6,31 @@ import (
     "time"
     "log"
 
+	"golang.org/x/crypto/bcrypt"
+
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
 func Login (c echo.Context) error {
-    username := c.QueryParam("username")
-    password := c.QueryParam("password")
-
-    // create jwt token
-    token, err := createJWTToken(username, password)
-    if err != nil {
-        log.Println("Error Creating JWT Tokens", err)
-        return c.String(http.StatusInternalServerError, "something went wrong")
-    }
-
-    check, err := checkUser(username, token, c)
+	var username, password []byte
+    username = []byte(c.QueryParam("username"))
+    password = []byte(c.QueryParam("password"))
+    
+    check, err := checkUser(username, password, c)
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong in db")
     }
     if !check {
         return c.String(http.StatusUnauthorized, "Your username or password is invalid.")
     }
+
+	token, err := createJWTToken(username, password)
+    if err != nil {
+        log.Println("Error Creating JWT Tokens", err)
+        return c.String(http.StatusInternalServerError, "something went wrong")
+    }
+
     
     cookie := &http.Cookie{}
 
@@ -40,7 +43,7 @@ func Login (c echo.Context) error {
     return c.String(http.StatusOK, "You were logged in!")
 }
 
-func checkUser (id, password string, c echo.Context) (bool, error) {
+func checkUser (id, password []byte, c echo.Context) (bool, error) {
     db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return false, err
@@ -55,22 +58,22 @@ func checkUser (id, password string, c echo.Context) (bool, error) {
     defer c.Request().Body.Close()
 
     //use DB
-    out, errOut := db.Prepare("select count(*) from users where userid = ? and password = ?;")
+    out, errOut := db.Prepare("select hash from users where userid = ?;")
     if errOut != nil {
         return false, errOut
     }
     defer out.Close()
 
-    auto, errRes := out.Query(id, password)
+    auto, errRes := out.Query(id)
     if errRes != nil {
         return false, errRes
     }
     defer auto.Close()
 
-    var chk int
+	var hash []byte
 
-    for auto.Next() {
-        err := auto.Scan(&chk)
+	for auto.Next() {
+        err := auto.Scan(&hash)
         if err != nil {
             return false, err
         }
@@ -78,12 +81,13 @@ func checkUser (id, password string, c echo.Context) (bool, error) {
 
     errAuto := auto.Err()
     if errAuto != nil {
-        return false, errAuto
+		return false, errAuto
     }
 
-    if chk != 1 {
-        return false, c.String(http.StatusInternalServerError, "Not unique ids")
-    }
+    errchk := bcrypt.CompareHashAndPassword(hash, password)
+	if errchk != nil {
+		return false, errchk
+	}
 
     return true, nil
 }

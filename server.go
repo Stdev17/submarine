@@ -30,5 +30,7 @@ func main () {
     e.POST("/create", db.CreateSQL)
     e.GET("/read", db.ReadSQL)
 
+    e.POST("/register", db.CreateUser)
+
     e.Start(":8000")
 }

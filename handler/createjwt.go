@@ -10,11 +10,11 @@ type JWTClaims struct {
     jwt.StandardClaims
 }
 
-func createJWTToken (id, password string) (string, error) {
+func createJWTToken (id, password []byte) (string, error) {
     claims := JWTClaims{
-        id,
+        string(id),
         jwt.StandardClaims{
-            Id: id,
+            Id: string(id),
             ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
         },
     }
