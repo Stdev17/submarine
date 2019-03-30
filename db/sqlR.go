@@ -38,6 +38,7 @@ func ReadSQL (c echo.Context) error {
     var (
         id int
         reviewer string
+		oldTime string
         myTime string
         contents string
     )
@@ -51,9 +52,13 @@ func ReadSQL (c echo.Context) error {
     var res []Review
 
     for auto.Next() {
-        err := auto.Scan(&id, &reviewer, &myTime, &contents)
+        err := auto.Scan(&id, &reviewer, &oldTime, &myTime, &contents)
         if err != nil {
             return c.String(http.StatusInternalServerError, "taking rows went wrong")
+        }
+		oldStamp, err := time.Parse("2006-01-02 15:04:05", oldTime)
+		if err != nil {
+            return c.String(http.StatusInternalServerError, "parsing times went wrong")
         }
         timeStamp, err := time.Parse("2006-01-02 15:04:05", myTime)
         if err != nil {
@@ -62,6 +67,7 @@ func ReadSQL (c echo.Context) error {
         res = append(res, Review{
             ReviewID: id,
             ReviewerID: reviewer,
+			RegTime: oldStamp,
             Time: timeStamp,
             Contents: contents,
         })

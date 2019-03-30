@@ -10,7 +10,7 @@ import (
     "database/sql"
 )
 
-func checkCookie (next echo.HandlerFunc) echo.HandlerFunc {
+func CheckCookie (next echo.HandlerFunc) echo.HandlerFunc {
     return func (c echo.Context) error {
 
         cookie, err := c.Cookie("login")

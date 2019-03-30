@@ -7,11 +7,13 @@ import (
     "log"
     "net/http"
 
+	//"golang.org/x/crypto"
+
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
-func CreateSQL (c echo.Context) error {
+func CreateUser (c echo.Context) error {
     db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
@@ -23,17 +25,17 @@ func CreateSQL (c echo.Context) error {
     }
     defer db.Close()
 
-    rev := Review{}
+    user := User{}
 	defer c.Request().Body.Close()    
-    revjson := c.Bind(&rev)
+    userjson := c.Bind(&user)
 
-    if revjson != nil {
-        log.Printf("Failed adding a review: %s", err)
+    if userjson != nil {
+        log.Printf("Failed adding a user: %s", err)
         return echo.NewHTTPError(http.StatusInternalServerError)
     }
 
     //use DB
-    in, errinsert := db.Prepare("INSERT INTO reviews (reviewer, time, latest_time, contents) VALUES(?, ?, ?, ?)")
+    in, errinsert := db.Prepare("INSERT INTO users (userid, time, hash) VALUES(?, ?, ?)")
     if errinsert != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }
@@ -44,7 +46,12 @@ func CreateSQL (c echo.Context) error {
     if err != nil {
         return c.String(http.StatusInternalServerError, "parse went wrong")
     }
-    _, errinto := in.Exec(rev.ReviewerID, t, t, rev.Contents)
+
+	hash, err := bcrypt.GenerateFromPassword(user.Hash, 72)
+	if err != nil {
+        return c.String(http.StatusInternalServerError, "Hash went wrong")
+    }
+    _, errinto := in.Exec(user.UserID, t, hash)
     if errinto != nil {
         return c.String(http.StatusInternalServerError, "insert went wrong")
     }

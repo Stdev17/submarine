@@ -30,6 +30,11 @@
   unused-packages = true
 
 [[constraint]]
+  name = "golang.org/x/crypto"
+  branch = "master"
+  source = "golang.org/x/crypto"
+
+[[constraint]]
   name = "github.com/labstack/echo"
   version = "3.1.0"
 

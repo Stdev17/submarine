@@ -17,15 +17,16 @@ func main () {
 
     //middlewares and groups
     e.Use(mymiddleware.ServerHeader)
-    UpdateGroup.Use(mymiddleware.checkCookie)
+    UpdateGroup.Use(mymiddleware.CheckCookie)
     UpdateGroup.POST("/update", handler.Update)
-    JWTGroup.GET("/", handler.mainJWT)
+    JWTGroup.GET("/", handler.MainJWT)
 
     //routing
     e.GET("/", handler.MainPage())
     e.GET("/login", handler.Login)
 
-    e.GET("/initiate", db.CreateUserTable)
+    e.GET("/initiate", db.CreateTable)
+    e.GET("/user", db.CreateUserTable)
     e.POST("/create", db.CreateSQL)
     e.GET("/read", db.ReadSQL)
 

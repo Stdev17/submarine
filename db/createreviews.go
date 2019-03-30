@@ -55,7 +55,7 @@ func CreateUserTable (c echo.Context) error {
         return c.String(http.StatusInternalServerError, "choosing went wrong")
     }
     
-    reviews, err := db.Prepare("create table users(id int NOT NULL AUTO_INCREMENT, userid varchar(30), registrered_time timestamp, jwt varchar(255), PRIMARY KEY (id)) engine=innodb;")
+    reviews, err := db.Prepare("create table users(id int NOT NULL AUTO_INCREMENT, userid varchar(30), registrered_time timestamp, hash varchar(255), PRIMARY KEY (id)) engine=innodb;")
     if err != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }
