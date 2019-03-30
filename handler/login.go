@@ -7,6 +7,7 @@ import (
     "log"
 
 	"golang.org/x/crypto/bcrypt"
+	"github.com/submarine/config"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
@@ -44,7 +45,7 @@ func Login (c echo.Context) error {
 }
 
 func checkUser (id, password []byte, c echo.Context) (bool, error) {
-    db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
+    db, err := sql.Open("mysql", "root:"+config.key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return false, err
     }

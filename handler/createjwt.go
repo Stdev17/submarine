@@ -3,6 +3,7 @@ package handler
 import (
 	"time"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/submarine/config"
 )
 
 type JWTClaims struct {
@@ -21,7 +22,7 @@ func createJWTToken (id, password []byte) (string, error) {
 
     rawToken := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 
-    token, err := rawToken.SignedString([]byte(password))
+    token, err := rawToken.SignedString([]byte(config.key.JWT))
     if err != nil {
         return "", err
     }

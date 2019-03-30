@@ -6,13 +6,14 @@ import (
     "time"
     "log"
     "net/http"
+	"github.com/submarine/config"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
 func CreateSQL (c echo.Context) error {
-    db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
+    db, err := sql.Open("mysql", "root:"+config.key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }

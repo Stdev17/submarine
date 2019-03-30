@@ -6,13 +6,14 @@ import (
     "time"
     "log"
     "github.com/submarine/db"
+	"github.com/submarine/config"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
 func Update (c echo.Context) error {
-    data, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
+    data, err := sql.Open("mysql", "root:"+config.key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }
@@ -33,7 +34,7 @@ func Update (c echo.Context) error {
     }
 
     //use data
-    out, errOut := data.Prepare("select jwt from users where userid = ?;")
+    out, errOut := data.Prepare("select hash from users where userid = ?;")
     if errOut != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }
@@ -45,10 +46,10 @@ func Update (c echo.Context) error {
     }
     defer auto.Close()
 
-    var token string
+    var hash []byte
 
     for auto.Next() {
-        err := auto.Scan(&token)
+        err := auto.Scan(&hash)
         if err != nil {
             return c.String(http.StatusInternalServerError, "scanning went wrong")
         }
@@ -63,7 +64,7 @@ func Update (c echo.Context) error {
     if err != nil {
         return c.String(http.StatusInternalServerError, "cookie went wrong")
     }
-    if token != cookie.Value {
+    if string(hash) != cookie.Value {
         return c.String(http.StatusInternalServerError, "wrong cookie")
     }
 
