@@ -24,49 +24,34 @@ func Update (c echo.Context) error {
     }
     defer data.Close()
 
-    rev := db.Review{}
+    user := db.user{}
     defer c.Request().Body.Close()    
-    revjson := c.Bind(&rev)
+    userjson := c.Bind(&user)
 
-    if revjson != nil {
-        log.Printf("Failed updating a review: %s", err)
+    if userjson != nil {
+        log.Printf("Failed loading a user info: %s", err)
         return echo.NewHTTPError(http.StatusInternalServerError)
     }
 
     //use data
-    out, errOut := data.Prepare("select hash from users where userid = ?;")
-    if errOut != nil {
-        return c.String(http.StatusInternalServerError, "query went wrong")
-    }
-    defer out.Close()
-
-    auto, errRes := out.Query(rev.ReviewerID)
-    if errRes != nil {
-        return c.String(http.StatusInternalServerError, "getting result went wrong")
-    }
-    defer auto.Close()
-
-    var hash []byte
-
-    for auto.Next() {
-        err := auto.Scan(&hash)
-        if err != nil {
-            return c.String(http.StatusInternalServerError, "scanning went wrong")
-        }
-    }
-
-    errAuto := auto.Err()
-    if errAuto != nil {
-        return c.String(http.StatusInternalServerError, "auto went wrong")
-    }
-
     cookie, err := c.Cookie("login")
     if err != nil {
         return c.String(http.StatusInternalServerError, "cookie went wrong")
     }
-    if string(hash) != cookie.Value {
-        return c.String(http.StatusInternalServerError, "wrong cookie")
-    }
+
+	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+    	if _, ok := token.Method.(*jwt.SigningMethodHS512); !ok {
+    	    return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
+    	}
+
+    	return config.key.JWT, nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+	    //ok
+	} else {
+    	return c.String(http.StatusInternalServerError, "cookie went wrong")
+	}
 
     in, errup := data.Prepare("update reviews set contents = ? latest_time = ? where id = ? and reviewer = ?")
     if errup != nil {
