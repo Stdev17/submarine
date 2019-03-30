@@ -18,12 +18,12 @@
   version = "v1.4.1"
 
 [[projects]]
-  digest = "1:bf618941b014c2a86e4a6f39d4a26541c06fc63387fc50d4694d67eac2151f4a"
+  digest = "1:688475ae01f983eceee598c7706119c8cc7649f382e4a186168ea7f9d472727a"
   name = "github.com/labstack/echo"
   packages = ["."]
   pruneopts = "UT"
-  revision = "38772c686c76b501f94bd6cd5b77f5842e93b559"
-  version = "v3.3.10"
+  revision = "6d9e043284aea2d07f5fcaf0d3a424eb7d9f6109"
+  version = "v4.0.0"
 
 [[projects]]
   digest = "1:01eb0269028d3c2e21b5b6cd9b1ba81bc4170ab293fcffa84e3aa3a6138a92e8"
@@ -70,11 +70,13 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:398e132d86665f82a3642f675cdadea673d0d1521209ebac3c378141209f99c4"
+  digest = "1:de2d43211b0ad0d073d770e355ceee59925a5f01115410fc096833b511ba7391"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
+    "bcrypt",
+    "blowfish",
   ]
   pruneopts = "UT"
   revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
@@ -102,6 +104,7 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/go-sql-driver/mysql",
     "github.com/labstack/echo",
+    "golang.org/x/crypto/bcrypt",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

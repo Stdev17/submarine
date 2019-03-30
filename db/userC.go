@@ -7,7 +7,7 @@ import (
     "log"
     "net/http"
 
-	//"golang.org/x/crypto"
+	"golang.org/x/crypto/bcrypt"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
