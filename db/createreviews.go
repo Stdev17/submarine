@@ -11,7 +11,7 @@ import (
 )
 
 func CreateTable (c echo.Context) error {
-    db, err := sql.Open("mysql", "root:"+config.key.DB+"@tcp(127.0.0.1:3306)/testdb")
+    db, err := sql.Open("mysql", "root:"+config.Key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }
@@ -41,7 +41,7 @@ func CreateTable (c echo.Context) error {
 }
 
 func CreateUserTable (c echo.Context) error {
-    db, err := sql.Open("mysql", "root:$123@tcp(127.0.0.1:3306)/testdb")
+    db, err := sql.Open("mysql", "root:"+config.Key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }
@@ -56,7 +56,7 @@ func CreateUserTable (c echo.Context) error {
         return c.String(http.StatusInternalServerError, "choosing went wrong")
     }
     
-    reviews, err := db.Prepare("create table users(id int NOT NULL AUTO_INCREMENT, userid varchar(30), registrered_time timestamp, hash varchar(255), PRIMARY KEY (id)) engine=innodb;")
+    reviews, err := db.Prepare("create table users(id int NOT NULL AUTO_INCREMENT, userid varchar(30), registered_time timestamp, hash varchar(255), PRIMARY KEY (id)) engine=innodb;")
     if err != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }

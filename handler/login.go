@@ -45,7 +45,7 @@ func Login (c echo.Context) error {
 }
 
 func checkUser (id, password []byte, c echo.Context) (bool, error) {
-    db, err := sql.Open("mysql", "root:"+config.key.DB+"@tcp(127.0.0.1:3306)/testdb")
+    db, err := sql.Open("mysql", "root:"+config.Key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return false, err
     }

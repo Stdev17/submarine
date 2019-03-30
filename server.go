@@ -18,8 +18,8 @@ func main () {
     //middlewares and groups
     e.Use(mymiddleware.ServerHeader)
     UpdateGroup.Use(mymiddleware.CheckCookie)
-    UpdateGroup.POST("/update", handler.Update)
-    JWTGroup.GET("/", handler.MainJWT)
+    UpdateGroup.POST("", handler.Update)
+    JWTGroup.GET("", handler.MainJWT)
 
     //routing
     e.GET("/", handler.MainPage())
