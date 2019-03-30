@@ -25,7 +25,7 @@ func CreateTable (c echo.Context) error {
         return c.String(http.StatusInternalServerError, "choosing went wrong")
     }
     
-    reviews, err := db.Prepare("create table reviews(id int NOT NULL AUTO_INCREMENT, reviewer varchar(30), time timestamp, contents varchar(1000), PRIMARY KEY (id)) engine=innodb;")
+    reviews, err := db.Prepare("create table reviews(id int NOT NULL AUTO_INCREMENT, reviewer varchar(30), time timestamp, latest_time timestamp, contents varchar(1000), PRIMARY KEY (id)) engine=innodb;")
     if err != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }

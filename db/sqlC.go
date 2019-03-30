@@ -33,7 +33,7 @@ func CreateSQL (c echo.Context) error {
     }
 
     //use DB
-    in, errinsert := db.Prepare("INSERT INTO reviews (reviewer, time, contents) VALUES(?, ?, ?)")
+    in, errinsert := db.Prepare("INSERT INTO reviews (reviewer, time, latest_time, contents) VALUES(?, ?, ?, ?)")
     if errinsert != nil {
         return c.String(http.StatusInternalServerError, "query went wrong")
     }
@@ -58,7 +58,7 @@ func CreateSQL (c echo.Context) error {
     if err != nil {
         return c.String(http.StatusInternalServerError, "parse went wrong")
     }
-    _, errinto := in.Exec(rev.ReviewerID, t, rev.Contents)
+    _, errinto := in.Exec(rev.ReviewerID, t, t, rev.Contents)
     if errinto != nil {
         return c.String(http.StatusInternalServerError, "insert went wrong")
     }
