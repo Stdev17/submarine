@@ -10,18 +10,18 @@ type JWTClaims struct {
     jwt.StandardClaims
 }
 
-func createJWTToken() (string, error) {
+func createJWTToken (id, password string) (string, error) {
     claims := JWTClaims{
-        "Jack",
+        id,
         jwt.StandardClaims{
-            Id: "main_user_id",
+            Id: id,
             ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
         },
     }
 
     rawToken := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 
-    token, err := rawToken.SignedString([]byte("mySecret"))
+    token, err := rawToken.SignedString([]byte(password))
     if err != nil {
         return "", err
     }
