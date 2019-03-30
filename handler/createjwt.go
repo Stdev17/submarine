@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"time"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/submarine/config"
+    "time"
+    jwt "github.com/dgrijalva/jwt-go"
+    "github.com/submarine/config"
 )
 
 type JWTClaims struct {

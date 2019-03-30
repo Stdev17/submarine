@@ -2,12 +2,12 @@ package mymiddleware
 
 import (
     "github.com/labstack/echo"
-	"github.com/submarine/config"
+    "github.com/submarine/config"
     "net/http"
     "strings"
     "log"
 
-	jwt "github.com/dgrijalva/jwt-go"
+    jwt "github.com/dgrijalva/jwt-go"
 )
 
 func CheckCookie (next echo.HandlerFunc) echo.HandlerFunc {
@@ -23,19 +23,19 @@ func CheckCookie (next echo.HandlerFunc) echo.HandlerFunc {
             return err
         }
 
-		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				
-				return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
-			}
+        token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+            if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+                
+                return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
+            }
 
-			return config.Key.JWT, nil
-		})
+            return config.Key.JWT, nil
+        })
 
-		if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			return next(c)
-		} else {
-    		return c.String(http.StatusUnauthorized, "you don't have the right cookie")
-		}
+        if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+            return next(c)
+        } else {
+            return c.String(http.StatusUnauthorized, "you don't have the right cookie")
+        }
     }
 }

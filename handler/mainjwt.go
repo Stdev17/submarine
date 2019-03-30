@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/labstack/echo"
-	"net/http"
+    "github.com/labstack/echo"
+    "net/http"
 )
 func MainJWT (c echo.Context) error {
-	return c.String(http.StatusOK, "Top Secret")
+    return c.String(http.StatusOK, "Top Secret")
 }

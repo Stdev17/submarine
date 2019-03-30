@@ -6,15 +6,15 @@ import (
     "time"
     "log"
 
-	"golang.org/x/crypto/bcrypt"
-	"github.com/submarine/config"
+    "golang.org/x/crypto/bcrypt"
+    "github.com/submarine/config"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 )
 
 func Login (c echo.Context) error {
-	var username, password []byte
+    var username, password []byte
     username = []byte(c.QueryParam("username"))
     password = []byte(c.QueryParam("password"))
     
@@ -26,7 +26,7 @@ func Login (c echo.Context) error {
         return c.String(http.StatusUnauthorized, "Your username or password is invalid.")
     }
 
-	token, err := createJWTToken(username, password)
+    token, err := createJWTToken(username, password)
     if err != nil {
         log.Println("Error Creating JWT Tokens", err)
         return c.String(http.StatusInternalServerError, "something went wrong")
@@ -71,9 +71,9 @@ func checkUser (id, password []byte, c echo.Context) (bool, error) {
     }
     defer auto.Close()
 
-	var hash []byte
+    var hash []byte
 
-	for auto.Next() {
+    for auto.Next() {
         err := auto.Scan(&hash)
         if err != nil {
             return false, err
@@ -82,13 +82,13 @@ func checkUser (id, password []byte, c echo.Context) (bool, error) {
 
     errAuto := auto.Err()
     if errAuto != nil {
-		return false, errAuto
+        return false, errAuto
     }
 
     errchk := bcrypt.CompareHashAndPassword(hash, password)
-	if errchk != nil {
-		return false, errchk
-	}
+    if errchk != nil {
+        return false, errchk
+    }
 
     return true, nil
 }

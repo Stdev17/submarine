@@ -6,9 +6,9 @@ import (
     "time"
     "log"
     "github.com/submarine/db"
-	"github.com/submarine/config"
+    "github.com/submarine/config"
 
-	jwt "github.com/dgrijalva/jwt-go"
+    jwt "github.com/dgrijalva/jwt-go"
 
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
@@ -35,48 +35,48 @@ func Update (c echo.Context) error {
         return echo.NewHTTPError(http.StatusInternalServerError)
     }
 
-	var revid string
-	cookie, err := c.Cookie("login")
-	token, err := jwt.ParseWithClaims(cookie.Value, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
-		}
-		return config.Key.JWT, nil
-	})
+    var revid string
+    cookie, err := c.Cookie("login")
+    token, err := jwt.ParseWithClaims(cookie.Value, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
+        }
+        return config.Key.JWT, nil
+    })
     if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
         log.Printf("%v %v", claims.Id, claims.ExpiresAt)
-		revid = claims.Id
+        revid = claims.Id
     } else {
         log.Println(err)
     }
 
-	if rev.ReviewerID != revid {
-		return c.String(http.StatusUnauthorized, "you does not own the review")
-	}
+    if rev.ReviewerID != revid {
+        return c.String(http.StatusUnauthorized, "you does not own the review")
+    }
 
     //use data
-	chk, errchk := data.Prepare("select count(*) from reviews where id = ? and reviewer = ?;")
+    chk, errchk := data.Prepare("select count(*) from reviews where id = ? and reviewer = ?;")
     if errchk != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }
-	defer chk.Close()
-	out, errchk := chk.Query(rev.ReviewID, rev.ReviewerID)
-	if errchk != nil {
-		return c.String(http.StatusInternalServerError, "something went wrong")
-	}
-	defer out.Close()
-	var taken int
-	out.Next()
-	err = out.Scan(&taken)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "scanning went wrong")
-	}
-	if out.Err() != nil {
-		return c.String(http.StatusInternalServerError, "scanning went wrong")	
-	}
+    defer chk.Close()
+    out, errchk := chk.Query(rev.ReviewID, rev.ReviewerID)
+    if errchk != nil {
+        return c.String(http.StatusInternalServerError, "something went wrong")
+    }
+    defer out.Close()
+    var taken int
+    out.Next()
+    err = out.Scan(&taken)
+    if err != nil {
+        return c.String(http.StatusInternalServerError, "scanning went wrong")
+    }
+    if out.Err() != nil {
+        return c.String(http.StatusInternalServerError, "scanning went wrong")	
+    }
     if taken != 1 {
-		return c.String(http.StatusBadRequest, "review finding error")
-	}
+        return c.String(http.StatusBadRequest, "review finding error")
+    }
 
     in, errup := data.Prepare("update reviews set contents = ?, latest_time = ? where id = ? and reviewer = ?;")
     if errup != nil {
