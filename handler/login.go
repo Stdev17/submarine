@@ -13,10 +13,12 @@ import (
     "database/sql"
 )
 
+
+
 func Login (c echo.Context) error {
-    var username, password []byte
-    username = []byte(c.QueryParam("username"))
-    password = []byte(c.QueryParam("password"))
+    var username, password string
+    username = c.QueryParam("username")
+    password = c.QueryParam("password")
     
     check, err := checkUser(username, password, c)
     if err != nil {
@@ -26,7 +28,7 @@ func Login (c echo.Context) error {
         return c.String(http.StatusUnauthorized, "Your username or password is invalid.")
     }
 
-    token, err := createJWTToken(username, password)
+    token, err := createJWTToken([]byte(username), []byte(password))
     if err != nil {
         log.Println("Error Creating JWT Tokens", err)
         return c.String(http.StatusInternalServerError, "something went wrong")
@@ -44,7 +46,7 @@ func Login (c echo.Context) error {
     return c.String(http.StatusOK, "You were logged in!")
 }
 
-func checkUser (id, password []byte, c echo.Context) (bool, error) {
+func checkUser (id, password string, c echo.Context) (bool, error) {
     db, err := sql.Open("mysql", "root:"+config.Key.DB+"@tcp(127.0.0.1:3306)/testdb")
     if err != nil {
         return false, err
@@ -71,7 +73,7 @@ func checkUser (id, password []byte, c echo.Context) (bool, error) {
     }
     defer auto.Close()
 
-    var hash []byte
+    var hash string
 
     for auto.Next() {
         err := auto.Scan(&hash)
@@ -79,14 +81,17 @@ func checkUser (id, password []byte, c echo.Context) (bool, error) {
             return false, err
         }
     }
-
     errAuto := auto.Err()
     if errAuto != nil {
         return false, errAuto
     }
+    if hash == "" {
+        return false, c.String(http.StatusBadRequest, "ID unidentified")
+    }
 
-    errchk := bcrypt.CompareHashAndPassword(hash, password)
+    errchk := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
     if errchk != nil {
+        log.Println(errchk)
         return false, errchk
     }
 
