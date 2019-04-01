@@ -2,10 +2,12 @@ package main
 
 import (
     "github.com/labstack/echo"
+    "github.com/labstack/echo/middleware"
 
     "github.com/submarine/handler"
     "github.com/submarine/mymiddleware"
     "github.com/submarine/db"
+    "github.com/submarine/config"
 )
 
 func main () {
@@ -18,7 +20,12 @@ func main () {
     //middlewares and groups
     e.Use(mymiddleware.ServerHeader)
     UpdateGroup.Use(mymiddleware.CheckCookie)
-    UpdateGroup.POST("", handler.Update)
+    config := middleware.JWTConfig{
+		Claims:     &handler.JWTClaims{},
+		SigningKey: []byte(config.Key.JWT),
+	}
+	UpdateGroup.Use(middleware.JWTWithConfig(config))
+	UpdateGroup.GET("", handler.Update)
     JWTGroup.GET("", handler.MainJWT)
 
     //routing
