@@ -4,6 +4,8 @@ import (
     "github.com/labstack/echo"
     "github.com/labstack/echo/middleware"
 
+	//jwt "github.com/dgrijalva/jwt-go"
+
     "github.com/submarine/handler"
     "github.com/submarine/mymiddleware"
     "github.com/submarine/db"
@@ -20,12 +22,14 @@ func main () {
     //middlewares and groups
     e.Use(mymiddleware.ServerHeader)
     UpdateGroup.Use(mymiddleware.CheckCookie)
-    config := middleware.JWTConfig{
-		Claims:     &handler.JWTClaims{},
-		SigningKey: []byte(config.Key.JWT),
-	}
+	//UpdateGroup.Use(mymiddleware.JWTHeader)
+	config := middleware.JWTConfig{
+            Claims:     &handler.JWTClaims{},
+			SigningMethod: "HS512",
+            SigningKey: []byte(config.Key.JWT),
+    }
 	UpdateGroup.Use(middleware.JWTWithConfig(config))
-	UpdateGroup.GET("", handler.Update)
+	UpdateGroup.POST("", handler.Update)
     JWTGroup.GET("", handler.MainJWT)
 
     //routing

@@ -19,7 +19,7 @@ func Update (c echo.Context) error {
     if err != nil {
         return c.String(http.StatusInternalServerError, "something went wrong")
     }
-
+    
     err = data.Ping()
     if err != nil {
         return c.String(http.StatusInternalServerError, "ping went wrong")
@@ -35,22 +35,26 @@ func Update (c echo.Context) error {
         return echo.NewHTTPError(http.StatusInternalServerError)
     }
 
-    var revid string
-    cookie, err := c.Cookie("login")
-    token, err := jwt.ParseWithClaims(cookie.Value, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-            return nil, c.String(http.StatusInternalServerError, "cookie went wrong")
+    user := c.Request().Header.Get("Authorization")
+    tk := []byte(user)
+    ntk := tk[7:]
+    tmp := string(ntk)
+
+    token, err := jwt.Parse(tmp, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {          
+            return nil, c.String(http.StatusInternalServerError, "token went wrong")
         }
         return config.Key.JWT, nil
     })
-    if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
-        log.Printf("%v %v", claims.Id, claims.ExpiresAt)
-        revid = claims.Id
-    } else {
+	if err != nil {
         log.Println(err)
-    }
+		return c.String(http.StatusInternalServerError, "somthing went wrong")
+	}
 
-    if rev.ReviewerID != revid {
+    if read, ok := token.Claims.(jwt.MapClaims); ok && read["name"] == rev.ReviewerID {
+        //ok
+    } else {
+        log.Println(read["name"])
         return c.String(http.StatusUnauthorized, "you does not own the review")
     }
 

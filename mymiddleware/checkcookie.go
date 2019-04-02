@@ -17,12 +17,13 @@ func CheckCookie (next echo.HandlerFunc) echo.HandlerFunc {
         
         if err != nil {
             if strings.Contains(err.Error(), "named cookie not present") {
+				log.Println(err)
                 return c.String(http.StatusUnauthorized, "you don't have any cookie")
             }
             log.Println(err)
             return err
         }
-
+		
         token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
             if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
                 
@@ -31,6 +32,10 @@ func CheckCookie (next echo.HandlerFunc) echo.HandlerFunc {
 
             return config.Key.JWT, nil
         })
+
+		if err != nil {
+			return err
+		}
 
         if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
             return next(c)
